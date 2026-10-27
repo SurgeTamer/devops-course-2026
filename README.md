@@ -5,4 +5,4 @@
 ## Стек
 - Git / GitHub
 - Python
-- Docker (скоро)
+- Docker (скоро)# Multi-remote test
