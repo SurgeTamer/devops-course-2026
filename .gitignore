@@ -1,5 +1,3 @@
 app/.env
-app/.env
-app/.env
-app/.env
-app/.env
+test/
+validator.py
