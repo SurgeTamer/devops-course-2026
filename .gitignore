@@ -1,0 +1,3 @@
+app/.env
+test/
+validator.py
