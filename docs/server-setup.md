@@ -52,3 +52,28 @@
 1.  01-clean-install: Создан сразу после установки ОС и выполнения `apt update && apt upgrade`.
 2.  02-keys-configured: Создан после настройки пользователя devops, создания SSH-ключей на хосте и успешного входа по ним.
 3.  03-ssh-hardened: Создан после изменения конфигурации SSH (порт 2222, запрет root и паролей) и настройки правил UFW.
+
+## 8. Веб-сервер
+
+- Устанавливаемый пакет: `nginx` (стандартный репозиторий Ubuntu).
+- Путь к конфигурации ресурса: `/etc/nginx/sites-available/devops-site` (активирован символической ссылкой в `/etc/nginx/sites-enabled/`). Стандартный конфиг `default` удален.
+- Каталог ресурса: `/var/www/devops-site`. Владелец: `devops:devops`. Права: `755` для каталогов и `644` для файлов (модель «владелец пишет, веб-сервер читает»).
+- Путь к сертификату: `/etc/ssl/certs/devops.crt` (права `644`, владелец `root`).
+- Путь к закрытому ключу: `/etc/ssl/private/devops.key` (права `600`, владелец `root`).
+- Команда формирования сертификата:
+    ```bash
+    sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/ssl/private/devops.key \
+      -out /etc/ssl/certs/devops.crt \
+      -subj "/CN=devops.local" \
+      -addext "subjectAltName=DNS:devops.local"
+
+## 9. Контейнеризация
+- Способ установки Docker Engine: Официальный репозиторий Docker (docker-ce).
+- Версия Docker Engine: v27.x (или ваша актуальная версия).
+- Участники группы docker: devops.
+- Расположение проекта на сервере: `/home/devops/app`.
+- Расположение файла .env: `/home/devops/app/.env`, права 600, владелец devops.
+- Публикуемые порты и адреса: Порт 5000 опубликован строго на `127.0.0.1:5000`. Порт СУБД 5432 не публикуется.
+- Именованные тома: `app_db_data` (данные PostgreSQL).
+- Конфигурация обратного прокси-сервера: Локация `/app/` в Nginx проксирует запросы на `http://127.0.0.1:5000/` с передачей заголовков Host, X-Real-IP, X-Forwarded-For, X-Forwarded-Proto.
